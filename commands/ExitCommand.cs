@@ -1,9 +1,8 @@
-using System;
 using static System.StringComparison;
 
-namespace src.commands
+namespace shell.commands
 {
-    public static class ExitCommand
+    internal static class ExitCommand
     {
         public static void ExitCode(string input)
         {

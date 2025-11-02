@@ -1,6 +1,6 @@
-﻿namespace src.commands
+﻿namespace shell.commands
 {
-    public static class EchoCommand
+    internal static class EchoCommand
     {
         public static void Reply(string input)
         {
@@ -10,7 +10,7 @@
             }
             else
             {
-                Console.WriteLine($"{input.Substring(5)}");
+                Console.WriteLine($"{input[5..]}");
             }
         }
     }

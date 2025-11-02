@@ -1,15 +1,8 @@
-﻿using src.utility;
-using System;
-using System.Data.SqlTypes;
-using System.Diagnostics;
-using System.IO;
-using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
+﻿using shell.utility;
 
-namespace src.commands
+namespace shell.commands
 {
-    public static class TypeCommand
+    internal static class TypeCommand
     {
         private static readonly string[] types = ["echo", "exit", "type"];
 
@@ -35,8 +28,24 @@ namespace src.commands
             }
             else if (found == -1)
             {
-                string result = CheckIfFileExists(substring);
-                Console.WriteLine(result);
+                List<string>? result = FileChecker.CheckIfFileExists(substring);
+                if (result != null)
+                {
+                    string[]? filterResult = FilterList(substring, result);
+                    if (filterResult != null)
+                    {
+                        // writes out {input} is {file path}
+                        Console.WriteLine($"{substring} is {filterResult[1]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{substring} not found");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"{substring} not found");
+                }
             }
             else
             {
@@ -44,36 +53,16 @@ namespace src.commands
             }
         }
 
-        private static string CheckIfFileExists(string target)
+        private static string[]? FilterList(string target, List<string> list)
         {
-            string notFound = $"{target} not found";
-            string? path = Environment.GetEnvironmentVariable("PATH");
-            if (path == null)
+            foreach (var obj in list)
             {
-                return notFound;
-            }
-            List<string> dirs = [.. path.Split(Path.PathSeparator)];
-            foreach (string dir in dirs)
-            {
-                if (!Directory.Exists(dir))
+                if (FileChecker.IsExecutable(obj))
                 {
-                    continue;
-                }
-                foreach (var filePath in Directory.EnumerateFiles(dir))
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(filePath);
-
-                    if (fileName.Equals(target))
-                    {
-                        if (!FilePermissionChecker.IsExecutable($"{filePath}"))
-                        {
-                            continue;
-                        }
-                        return $"{target} is {filePath}";
-                    }
+                    return [target, obj];
                 }
             }
-            return notFound;
+            return null;
         }
     }
 }
